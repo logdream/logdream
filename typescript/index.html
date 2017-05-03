@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+
+    <title>Title of the document</title>
+    <script src="subtitle.browser.js"></script>
+</head>
+
+<body>
+    The content of the document......
+    <input type="file" name="file" id="srtFile" />
+    <input type="button" value="测试" onclick="readFile()" />
+    <textarea id="result"></textarea>
+</body>
+<script>
+    const url = "http://fanyi.youdao.com/openapi.do?keyfrom=logsdream&key=1441335372&type=data&doctype=json&version=1.1&q="; 
+    function ajax(method, url, data, cb, before) {
+        var xhr = new XMLHttpRequest();
+        xhr.open(method, url, true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState != 4) {
+                return;
+            }
+            cb(xhr);
+        };
+        if (before !== undefined) {
+            before(xhr);
+        }
+        xhr.send(data);
+    }
+    let readStr = function (srt) {
+        var captions = new Subtitle();
+
+        captions.parse(srt);
+
+
+        let objs = captions.getSubtitles();
+        for (let i in objs) {
+
+            let qUrl = url + objs[i].text;
+            if(i%30==0)
+            ajax("GET",qUrl,undefined,function(xhr){
+                console.log(xhr);
+
+            });
+            objs[i].text = objs[i].text + "\n" + "中午";
+        }
+        let re = (captions.stringify());
+        document.getElementById("result").value = re;
+
+    };
+
+    function readFile() {
+        readAsText(readStr);
+
+    }
+
+
+    function readAsText(f) {
+        var file = document.getElementById("srtFile").files[0];
+        var reader = new FileReader();
+        //将文件以文本形式读入页面  
+        reader.readAsText(file);
+        reader.onload = function (f) {
+            var result = document.getElementById("result");
+            //显示文件  
+            //  result.innerHTML = this.result;
+            readStr(this.result);
+
+        }
+    }
+
+</script>
+
+</html>
